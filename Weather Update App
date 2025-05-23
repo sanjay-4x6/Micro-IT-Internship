@@ -1,0 +1,41 @@
+import java.io.*;
+import java.net.*;
+import java.util.Scanner;
+import org.json.JSONObject;
+
+public class WeatherApp {
+    public static void main(String[] args) throws Exception {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter city name: ");
+        String city = scanner.nextLine();
+
+        String apiKey = "your_api_key_here"; // Replace with your actual API key
+        String urlString = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apiKey + "&units=metric";
+
+        URL url = new URL(urlString);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.connect();
+
+        int responseCode = conn.getResponseCode();
+        if (responseCode != 200) {
+            System.out.println("Error: Failed to get weather data");
+            return;
+        }
+
+        StringBuilder response = new StringBuilder();
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String line;
+        while ((line = in.readLine()) != null) {
+            response.append(line);
+        }
+        in.close();
+
+        JSONObject json = new JSONObject(response.toString());
+        JSONObject main = json.getJSONObject("main");
+        double temp = main.getDouble("temp");
+        int humidity = main.getInt("humidity");
+        System.out.println("\nCurrent temperature in " + city + ": " + temp + "°C");
+        System.out.println("Humidity: " + humidity + "%");
+    }
+}
